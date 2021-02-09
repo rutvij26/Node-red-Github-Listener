@@ -1,0 +1,119 @@
+[
+    {
+        "id": "7e3a5b59.754f94",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "e96e1ff0.0d78b",
+        "type": "http in",
+        "z": "7e3a5b59.754f94",
+        "name": "Github Post",
+        "url": "/payload",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 130,
+        "y": 200,
+        "wires": [
+            [
+                "4d4459e7.5fe608"
+            ]
+        ]
+    },
+    {
+        "id": "b5efa0d1.2117a",
+        "type": "csv",
+        "z": "7e3a5b59.754f94",
+        "name": " CSV",
+        "sep": ",",
+        "hdrin": true,
+        "hdrout": "once",
+        "multi": "one",
+        "ret": "\\n",
+        "temp": "ref, before, after, name, message, file_added, file_removed, file_modified",
+        "skip": "0",
+        "strings": true,
+        "include_empty_strings": "",
+        "include_null_values": "",
+        "x": 570,
+        "y": 200,
+        "wires": [
+            [
+                "fdd3e2bc.b59d5"
+            ]
+        ]
+    },
+    {
+        "id": "fdd3e2bc.b59d5",
+        "type": "file",
+        "z": "7e3a5b59.754f94",
+        "name": "Logging csv",
+        "filename": "logged.csv",
+        "appendNewline": true,
+        "createDir": true,
+        "overwriteFile": "false",
+        "encoding": "none",
+        "x": 730,
+        "y": 200,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4d4459e7.5fe608",
+        "type": "function",
+        "z": "7e3a5b59.754f94",
+        "name": "filterFunction",
+        "func": "ref= msg.payload.ref\nbefore = msg.payload.before\nafter = msg.payload.after\npushername = msg.payload.pusher.name\ncommit = msg.payload.commits[0]\ncommit_msg = commit.message\ncommit_add = commit.added[0]\ncommit_rem = commit.removed[0]\ncommit_mod = commit.modified[0]\n\nmsg.payload=[ref, before, after, pushername, commit_msg, commit_add, commit_rem, commit_mod ];\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 350,
+        "y": 200,
+        "wires": [
+            [
+                "b5efa0d1.2117a",
+                "5aed193b.9c5c38"
+            ]
+        ]
+    },
+    {
+        "id": "5aed193b.9c5c38",
+        "type": "function",
+        "z": "7e3a5b59.754f94",
+        "name": "alertFunction",
+        "func": "ref = msg.payload[0]\nbefore = msg.payload[1]\nafter = msg.payload[2]\nname = msg.payload[3]\nmsg= msg.payload[4]\n\nmyStr = {}\nmyStr.payload =\"Commit was created on \" + ref + \" with commit hash \" + after + \" By \" + name + \" with Commit Message => \" + msg;\n\n return myStr;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 350,
+        "y": 300,
+        "wires": [
+            [
+                "aec6374f.4d79f8"
+            ]
+        ]
+    },
+    {
+        "id": "aec6374f.4d79f8",
+        "type": "debug",
+        "z": "7e3a5b59.754f94",
+        "name": "Alert Text",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 740,
+        "y": 360,
+        "wires": []
+    }
+]
